@@ -104,7 +104,7 @@ fun rememberScreenConfig(): ScreenConfig {
                 widthDp = widthDp,
                 minWidth = density.run { 320.toDp().value }, // smallest phone width
                 maxWidth = density.run { 454.toDp().value }, // largest known tablet width
-                minRatio = 1F,
+                minRatio = 0.9F,
                 maxRatio = 1.3F
             ) // fixed for now, can be expanded
 
@@ -118,7 +118,7 @@ fun rememberScreenConfig(): ScreenConfig {
                     widthDp = widthDp,
                     minWidth = 320F, // smallest phone width
                     maxWidth = 852F, // largest known tablet width
-                    minRatio = 1f,
+                    minRatio = 1F,
                     maxRatio = 1.5F
                 )
             }
