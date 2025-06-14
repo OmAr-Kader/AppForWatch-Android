@@ -1,24 +1,26 @@
-package com.ramo.watchapp
+package com.ramo.watchapp.presentation
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
-import com.google.android.gms.wearable.DataMapItem
-import com.google.android.gms.wearable.Wearable
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.json.JSONObject
 import com.google.android.gms.wearable.DataItem
+import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.MessageEvent
+import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
+import com.ramo.shared.MessageConstants
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import org.json.JSONObject
 
 class MyWearableListenerService : WearableListenerService() {
 
@@ -88,22 +90,29 @@ class WatchClient(private val fetchContext: () -> Context) : ViewModel(), DataCl
         }
     }
 
-    fun togglePlayback() {
-        sendMessage(MessageConstants.ACTION_TOGGLE)
+    fun config() {
+        sendMessage("/config", MessageConstants.ACTION_CONFIG)
     }
 
-    private fun sendMessage(action: String) {
+    fun togglePlayback() {
+        sendMessage("/toggle", MessageConstants.ACTION_TOGGLE)
+    }
+
+    private fun sendMessage(path: String, action: String) {
         val message = JSONObject().apply {
             put(MessageConstants.KEY_ACTION, action)
         }.toString().toByteArray()
 
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch(Dispatchers.Default) {
             Wearable.getNodeClient(fetchContext()).connectedNodes.addOnCompleteListener {
-                Log.w("MusicPlayer ==>", "${it.result}")
-                Log.w("MusicPlayer ==>", "${it.exception}")
                 it.result.also { nodes ->
                     for (node in nodes) {
-                        Wearable.getMessageClient(fetchContext()).sendMessage(node.id, "/toggle", message)
+                        if (node.isNearby) {
+                            viewModelScope.launch(Dispatchers.Default) {
+                                val let = Wearable.getMessageClient(fetchContext()).sendMessage(node.id, path, message).await()
+                                Log.w("MusicPlayer ==>!!!", "$let")
+                            }
+                        }
                     }
                 }
             }
@@ -112,14 +121,3 @@ class WatchClient(private val fetchContext: () -> Context) : ViewModel(), DataCl
 
 }
 
-object MessageConstants {
-    const val ACTION_TOGGLE = "toggle"
-    const val ACTION_PLAY = "play"
-    const val ACTION_PAUSE = "pause"
-    const val ACTION_STATE = "state"
-    const val KEY_ACTION = "action"
-    const val KEY_IS_PLAYING = "is_playing"
-    const val KEY_TITLE = "title"
-    const val KEY_ARTIST = "artist"
-    const val KEY_COVER_URL = "cover_url"
-}

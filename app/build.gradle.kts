@@ -42,6 +42,8 @@ android {
 
 dependencies {
 
+
+    implementation(project(":shared"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -61,4 +63,5 @@ dependencies {
     implementation(libs.play.services.wearable)
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.androidx.window)
 }

@@ -37,6 +37,7 @@ android {
 
 dependencies {
 
+    implementation(project(":shared"))
     implementation(libs.play.services.wearable)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -60,4 +61,5 @@ dependencies {
     debugImplementation(libs.androidx.tiles.tooling)
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.androidx.window)
 }

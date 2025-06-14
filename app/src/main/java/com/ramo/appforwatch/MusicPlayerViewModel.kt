@@ -5,6 +5,7 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataItem
@@ -14,7 +15,7 @@ import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
-import kotlinx.coroutines.CoroutineScope
+import com.ramo.shared.MessageConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -49,18 +50,6 @@ class MyWearableListenerService : WearableListenerService() {
     }
 }
 
-object MessageConstants {
-    const val ACTION_TOGGLE = "toggle"
-    const val ACTION_PLAY = "play"
-    const val ACTION_PAUSE = "pause"
-    const val ACTION_STATE = "state"
-    const val KEY_ACTION = "action"
-    const val KEY_IS_PLAYING = "is_playing"
-    const val KEY_TITLE = "title"
-    const val KEY_ARTIST = "artist"
-    const val KEY_COVER_URL = "cover_url"
-}
-
 data class MusicTrack(
     val isPlaying: Boolean = false,
     val title: String = "",
@@ -93,13 +82,10 @@ class MusicPlayer(private val fetchContext: () -> Context) : ViewModel(), Messag
         sendPlaybackState()
     }
 
-
     @SuppressLint("VisibleForTests")
-    private fun sendPlaybackState() {
-        CoroutineScope(Dispatchers.IO).launch {
+    private fun sendPlaybackState(id: String = "from_user") {
+        viewModelScope.launch(Dispatchers.Default) {
             Wearable.getNodeClient(fetchContext()).connectedNodes.addOnCompleteListener {
-                Log.w("MusicPlayer ==>", "${it.result}")
-                Log.w("MusicPlayer ==>", "${it.exception}")
                 it.result.also { nodes ->
                     if (nodes.isNotEmpty()) {
                         val dataMapRequest = PutDataMapRequest.create("/music_state")
@@ -110,9 +96,12 @@ class MusicPlayer(private val fetchContext: () -> Context) : ViewModel(), Messag
                             dataMap.putString(MessageConstants.KEY_TITLE, title)
                             dataMap.putString(MessageConstants.KEY_ARTIST, artist)
                             dataMap.putString(MessageConstants.KEY_COVER_URL, coverUrl)
+                            dataMap.putString(MessageConstants.KEY_ID, id)
                         }
                         val request = dataMapRequest.asPutDataRequest()
-                        Wearable.getDataClient(fetchContext()).putDataItem(request)
+                        viewModelScope.launch(Dispatchers.Default) {
+                            Wearable.getDataClient(fetchContext()).putDataItem(request)
+                        }
                     } else {
                         Log.w("MusicPlayer", "No connected wearable devices found.")
                     }
@@ -128,8 +117,10 @@ class MusicPlayer(private val fetchContext: () -> Context) : ViewModel(), Messag
         Log.w("MusicPlayer", "${messageEvent.data}")
         val message = messageEvent.data.decodeToString()
         val json = JSONObject(message)
+        Log.w("onMessageReceived", "${json.getString(MessageConstants.KEY_ACTION)}")
         when (json.getString(MessageConstants.KEY_ACTION)) {
             MessageConstants.ACTION_TOGGLE -> togglePlayback()
+            MessageConstants.ACTION_CONFIG -> sendPlaybackState(id = messageEvent.requestId.toString())
         }
     }
 

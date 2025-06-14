@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "AppForWatch"
 include(":app")
 include(":watchapp")
+include(":shared")
