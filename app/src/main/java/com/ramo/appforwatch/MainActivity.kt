@@ -114,6 +114,7 @@ fun MusicScreen() {
 
 
 //@Preview(showBackground = true)
+@Suppress("unused")
 @Composable
 fun GreetingPreview() {
     AppForWatchTheme {

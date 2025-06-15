@@ -68,12 +68,14 @@ class MusicPlayer(private val fetchContext: () -> Context) : ViewModel(), Messag
     }
 
     fun play() {
-        if (mediaPlayer == null) {
-            mediaPlayer = MediaPlayer.create(fetchContext(), R.raw.be_together)
+        viewModelScope.launch {
+            if (mediaPlayer == null) {
+                mediaPlayer = MediaPlayer.create(fetchContext(), R.raw.be_together)
+            }
+            mediaPlayer?.start()
+            _trackData.value = trackData.value.copy(isPlaying = true)
+            sendPlaybackState()
         }
-        mediaPlayer?.start()
-        _trackData.value = trackData.value.copy(isPlaying = true)
-        sendPlaybackState()
     }
 
     fun pause() {

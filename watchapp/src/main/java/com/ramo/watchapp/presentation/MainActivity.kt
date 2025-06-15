@@ -30,18 +30,15 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.wear.compose.material.Button
-import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.Text
+import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.Text
 import com.google.android.gms.wearable.Wearable
 import com.ramo.shared.Pause
 import com.ramo.shared.Play
 import com.ramo.shared.imageBuildr
 import kotlinx.coroutines.coroutineScope
-import kotlin.coroutines.suspendCoroutine
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,9 +49,7 @@ class MainActivity : ComponentActivity() {
         setTheme(android.R.style.Theme_DeviceDefault)
 
         setContent {
-            Scaffold {
-                WatchMusicScreen()
-            }
+            WatchMusicScreen()
         }
     }
 }
@@ -115,6 +110,7 @@ fun WatchMusicScreen() {
         ) {
             Icon(
                 imageVector = if (trackData.isPlaying) Pause else Play,
+                modifier = Modifier.fillMaxSize(),
                 contentDescription = null
             )
         }
@@ -123,6 +119,7 @@ fun WatchMusicScreen() {
 }
 
 //@Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
+@Suppress("unused")
 @Composable
 fun DefaultPreview() {
     WatchMusicScreen()
