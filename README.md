@@ -1,3 +1,3 @@
 # Simple App Android & Watch
 
-<img src="Screenshots/1.png"  width="464" height="974" alt="1"/>
+<img src="Screenshots/1.png"  width="1052" height="978" alt="1"/>
