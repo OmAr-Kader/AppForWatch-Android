@@ -3,7 +3,7 @@
  * most up to date changes to the libraries and their usages.
  */
 
-package com.ramo.watchapp.presentation
+package com.ramo.watchapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -34,11 +34,13 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.Text
+import coil.compose.SubcomposeAsyncImage
 import com.google.android.gms.wearable.Wearable
 import com.ramo.shared.Pause
 import com.ramo.shared.Play
 import com.ramo.shared.imageBuildr
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +69,7 @@ fun WatchMusicScreen() {
             Wearable.getMessageClient(context).addListener(client)
 
         }
-        kotlinx.coroutines.delay(100L)
+        delay(100L)
         coroutineScope {
             client.config()
         }
@@ -76,7 +78,7 @@ fun WatchMusicScreen() {
     Column(Modifier.fillMaxSize().background(Color(42, 42, 42, 255)), horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(Modifier.height(sc.dp(15)))
         Column(Modifier.size(sc.dp(80)).padding()) {
-            coil.compose.SubcomposeAsyncImage(
+            SubcomposeAsyncImage(
                 model = LocalContext.current.imageBuildr(trackData.coverUrl),
                 success = { (painter, _) ->
                     Image(

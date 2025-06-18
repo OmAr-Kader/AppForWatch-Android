@@ -1,4 +1,4 @@
-package com.ramo.watchapp.presentation
+package com.ramo.watchapp
 
 import android.annotation.SuppressLint
 import android.content.Context

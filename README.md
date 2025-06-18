@@ -1,4 +1,4 @@
-# Simple App Android & Watch
+# Simple Template App For Android & Watch (WearOS)
 
 ## iOS Version
 
